@@ -64,8 +64,15 @@ def regist_entry(terminal_id):
 # terminal_id_B {terminal_id}
 # history {terminal_id_A, terminal_id_B, terminal_id_A, terminal_id_B, ...}
 # latest {terminal_id_A}
-
 def regist_match(terminal_id_A, terminal_id_B, match_id):
+    # 待機を削除
+    table.delete_item(
+        Key={
+            'attribute_name': 'stand_by',
+            'attribute_key': f'{terminal_id_A}',
+        }
+    )
+    # マッチを登録
     table.put_item(
         Item={
             'attribute_name': 'match_id',
@@ -74,6 +81,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'updated_at': datetime.datetime.now().isoformat(),
         }
     )
+    # ステータスを更新
     table.put_item(
         Item={
             'attribute_name': 'terminal_id',

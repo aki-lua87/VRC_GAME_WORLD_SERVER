@@ -23,7 +23,7 @@ def main(event, context):
         'body': json.dumps(
             {
                 'result': entry.get('status'),
-                'match_id': entry.get('match_id')
+                'match_id': entry.get('match_id', '')
             }
         )
     }

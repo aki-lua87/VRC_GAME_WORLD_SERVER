@@ -41,6 +41,13 @@ package:
     - src/**
     - LICENSE
 
+layers:
+  utilsLayer:
+    path: src/layers/utils
+    name: ${opt:stage}-${self:service}-utilsLayer
+    description: utils
+    compatibleRuntimes:
+      - python3.8
 
 functions:
   rv_entry_regist:

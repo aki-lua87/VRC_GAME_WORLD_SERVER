@@ -22,6 +22,9 @@ def main(event, context):
         # 待機登録
         ddbutils.regist_stand_by(terminal_id)
         return httputils.return200()
+    # 自身が待機中の場合はマッチングしない
+    if stand_by.get('attribute_key') == terminal_id:
+        return httputils.return200()
     # マッチング
     match_id = str(uuid.uuid4())
     ddbutils.regist_match(terminal_id, stand_by.get('attribute_key'), match_id)
