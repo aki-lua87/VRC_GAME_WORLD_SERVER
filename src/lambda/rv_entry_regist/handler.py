@@ -14,6 +14,12 @@ def main(event, context):
     terminal_id = queryStringParameters.get('terminal_id', None)
     if terminal_id is None:
         return httputils.return400()
+    # 自身がマッチング中の場合はそのマッチングをキャンセル
+    entry = ddbutils.get_entry(terminal_id)
+    if entry is not None:
+        status = entry.get('status')
+        if status == 'MATCHED':
+            ddbutils.match_cancel(entry.get('match_id'))
     # 登録
     ddbutils.regist_entry(terminal_id)
     # 待機確認
@@ -27,7 +33,7 @@ def main(event, context):
         return httputils.return200()
     # マッチング
     match_id = str(uuid.uuid4())
-    ddbutils.regist_match(terminal_id, stand_by.get('attribute_key'), match_id)
+    ddbutils.regist_match(stand_by.get('attribute_key'), terminal_id, match_id)
     # マッチング結果通知
     return {
         'statusCode': 200,

@@ -64,11 +64,11 @@ functions:
       - http:
           path: /rv/entry/regist
           method: get
-  rv_entry_check:
-    handler: src/lambda/rv_entry_check/handler.main
+  rv_matching_check:
+    handler: src/lambda/rv_matching_check/handler.main
     package:
       include:
-        - src/lambda/rv_entry_check/handler.py
+        - src/lambda/rv_matching_check/handler.py
     environment:
       TABLE: ${self:custom.table}
     layers:
@@ -78,7 +78,34 @@ functions:
       - http:
           path: /rv/entry/check
           method: get
-
+  rv_action_regist:
+    handler: src/lambda/rv_action_regist/handler.main
+    package:
+      include:
+        - src/lambda/rv_action_regist/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/action/regist
+          method: get
+  rv_action_check:
+    handler: src/lambda/rv_action_check/handler.main
+    package:
+      include:
+        - src/lambda/rv_action_check/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/action/check
+          method: get
 
 resources:
   Resources:

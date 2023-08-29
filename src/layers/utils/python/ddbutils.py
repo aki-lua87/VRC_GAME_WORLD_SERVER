@@ -77,6 +77,9 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
         Item={
             'attribute_name': 'match_id',
             'attribute_key': f'{match_id}',
+            'terminal_id_A': f'{terminal_id_A}',
+            'terminal_id_B': f'{terminal_id_B}',
+            'history': [],
             'status': 'MATCHED',
             'updated_at': datetime.datetime.now().isoformat(),
         }
@@ -103,7 +106,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
     return match_id
 
 
-def get_match_info(match_id):
+def get_match(match_id):
     response = table.get_item(
         Key={
             'attribute_name': 'match_id',
@@ -117,7 +120,7 @@ def get_match_info(match_id):
 
 
 def match_cancel(match_id):
-    match = get_match_info(match_id)
+    match = get_match(match_id)
     if match is None:
         return None
     terminal_id_A = match.get('terminal_id_A')
@@ -140,21 +143,36 @@ def match_cancel(match_id):
             'updated_at': datetime.datetime.now().isoformat(),
         }
     )
+    table.update_item(
+        Key={
+            'attribute_name': 'match_id',
+            'attribute_key': f'{match_id}'
+        },
+        UpdateExpression="SET #status = :status",
+        ExpressionAttributeNames={
+            '#status': 'status'
+        },
+        ExpressionAttributeValues={
+            ":status": 'CANCELED'
+        }
+    )
 
 
-def regist_move(match_id, move):
+def regist_action(match_id, terminal_id, action):
     table.update_item(
         Key={
             'attribute_name': 'match_id',
             'attribute_key': f'{match_id}',
         },
-        UpdateExpression="SET #history = list_append(#history, :value1), #latest = :value2",
+        UpdateExpression="SET #h = list_append(#h, :value1), #l = :value2, #u = :value3",
         ExpressionAttributeNames={
-            '#history': 'history',
-            '#latest': 'latest',
+            '#h': 'history',
+            '#l': 'latest',
+            '#u': 'updated_by'
         },
         ExpressionAttributeValues={
-            ":value1": move,
-            ":value2": move,
+            ":value1": [action],
+            ":value2": action,
+            ":value3": terminal_id
         }
     )

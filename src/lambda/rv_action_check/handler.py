@@ -4,6 +4,7 @@ import ddbutils
 import httputils
 
 
+# rv_action_check 手取得
 def main(event, context):
     print('event:', event)
     print('context:', context)
@@ -13,17 +14,19 @@ def main(event, context):
     terminal_id = queryStringParameters.get('terminal_id', None)
     if terminal_id is None:
         return httputils.return400()
-    # 取得
+    # 端末情報取得
     entry = ddbutils.get_entry(terminal_id)
     if entry is None:
         return httputils.return400()
-    # 結果通知
+    # マッチ情報取得
+    match_id = entry.get('match_id')
+    if match_id is None:
+        return httputils.return400()
+    match = ddbutils.get_match(match_id)
+    if match is None:
+        return httputils.return400()
+    # マッチ情報を返却
     return {
         'statusCode': 200,
-        'body': json.dumps(
-            {
-                'result': entry.get('status'),
-                'match_id': entry.get('match_id', '')
-            }
-        )
+        'body': json.dumps(match)
     }
