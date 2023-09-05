@@ -80,6 +80,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'terminal_id_A': f'{terminal_id_A}',
             'terminal_id_B': f'{terminal_id_B}',
             'history': [],
+            'latest': '',
             'status': 'MATCHED',
             'updated_at': datetime.datetime.now().isoformat(),
         }

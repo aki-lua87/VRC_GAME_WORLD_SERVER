@@ -36,6 +36,9 @@ def main(event, context):
     ddbutils.regist_match(stand_by.get('attribute_key'), terminal_id, match_id)
     # マッチング結果通知
     return {
+        'headers': {
+            "Access-Control-Allow-Origin": "*"
+        },
         'statusCode': 200,
         'body': json.dumps(
             {

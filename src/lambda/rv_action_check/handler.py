@@ -27,6 +27,9 @@ def main(event, context):
         return httputils.return400()
     # マッチ情報を返却
     return {
+        'headers': {
+            "Access-Control-Allow-Origin": "*"
+        },
         'statusCode': 200,
         'body': json.dumps(match)
     }
