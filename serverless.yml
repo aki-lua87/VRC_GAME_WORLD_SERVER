@@ -1,0 +1,128 @@
+service: vrc-vs-server
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  table: ${self:service}-${opt:stage}-table
+  pythonRequirements:
+    dockerizePip: true
+    dockerImage: lambci/lambda:build-python3.8
+    useStaticCache: false
+    useDownloadCache: false
+    layer: true
+  deploymentBucket:
+    name: ${env:DEPLOY_BUCKET}
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: ap-northeast-1
+  role: ${env:LAMBDA_IAM}
+  timeout: 7
+  logRetentionInDays: 14
+  tracing:
+    apiGateway: true
+    lambda: true
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - package-lock.json
+    - requirements.txt
+    - serverless.yml
+    - .env
+    - memo.txt
+    - example.py
+    - src/**
+    - LICENSE
+
+layers:
+  utilsLayer:
+    path: src/layers/utils
+    name: ${opt:stage}-${self:service}-utilsLayer
+    description: utils
+    compatibleRuntimes:
+      - python3.8
+
+functions:
+  rv_entry_regist:
+    handler: src/lambda/rv_entry_regist/handler.main
+    package:
+      include:
+        - src/lambda/rv_entry_regist/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/entry/regist
+          method: get
+  rv_matching_check:
+    handler: src/lambda/rv_matching_check/handler.main
+    package:
+      include:
+        - src/lambda/rv_matching_check/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/entry/check
+          method: get
+  rv_action_regist:
+    handler: src/lambda/rv_action_regist/handler.main
+    package:
+      include:
+        - src/lambda/rv_action_regist/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/action/regist
+          method: get
+  rv_action_check:
+    handler: src/lambda/rv_action_check/handler.main
+    package:
+      include:
+        - src/lambda/rv_action_check/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/action/check
+          method: get
+
+resources:
+  Resources:
+    VRCVSTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.table}
+        AttributeDefinitions:
+          - AttributeName: attribute_name
+            AttributeType: S
+          - AttributeName: attribute_key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: attribute_name
+            KeyType: HASH
+          - AttributeName: attribute_key
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
