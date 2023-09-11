@@ -1,6 +1,6 @@
-import json
 import uuid
 
+import datautils
 import ddbutils
 import httputils
 
@@ -11,9 +11,11 @@ def main(event, context):
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()
-    terminal_id = queryStringParameters.get('terminal_id', None)
-    if terminal_id is None:
-        return httputils.return400()
+    terminal_id = queryStringParameters.get('terminal_id', 'anonymous')
+    app_id = queryStringParameters.get('app_id', 'anonymous')
+    if app_id == 'vrc':
+        # プレフィクスとしてIPアドレスを付与
+        terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
     # 自身がマッチング中の場合はそのマッチングをキャンセル
     entry = ddbutils.get_entry(terminal_id)
     if entry is not None:
@@ -34,18 +36,14 @@ def main(event, context):
     # マッチング
     match_id = str(uuid.uuid4())
     ddbutils.regist_match(stand_by.get('attribute_key'), terminal_id, match_id)
+    response = datautils.EntryRegistResponse('MATCHED', match_id)
     # マッチング結果通知
     return {
         'headers': {
             "Access-Control-Allow-Origin": "*"
         },
         'statusCode': 200,
-        'body': json.dumps(
-            {
-                'result': 'MATCHED',
-                'match_id': match_id
-            }
-        )
+        'body': datautils.responseJson(response)
     }
 
 

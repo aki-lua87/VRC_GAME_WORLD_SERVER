@@ -11,9 +11,11 @@ def main(event, context):
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()
-    terminal_id = queryStringParameters.get('terminal_id', None)
-    if terminal_id is None:
-        return httputils.return400()
+    terminal_id = queryStringParameters.get('terminal_id', 'anonymous')
+    app_id = queryStringParameters.get('app_id', 'anonymous')
+    if app_id == 'vrc':
+        # プレフィクスとしてIPアドレスを付与
+        terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
     action = queryStringParameters.get('action', None)
     if action is None:
         return httputils.return400()

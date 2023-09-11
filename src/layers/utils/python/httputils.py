@@ -1,7 +1,7 @@
 import json
 
 
-def return400():
+def return400(message='bad request'):
     return {
         'headers': {
             "Access-Control-Allow-Origin": "*"
@@ -9,8 +9,8 @@ def return400():
         'statusCode': 400,
         'body': json.dumps(
             {
-                'result': 'NG',
-                'error': 'bad request'
+                'status': 'ERROR',
+                'error': message
             }
         )
     }
@@ -24,7 +24,7 @@ def return200():
         'statusCode': 200,
         'body': json.dumps(
             {
-                'result': 'OK'
+                'status': 'OK'
             }
         )
     }

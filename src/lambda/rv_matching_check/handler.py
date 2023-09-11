@@ -1,7 +1,6 @@
-import json
-
 import ddbutils
 import httputils
+import datautils
 
 
 # rv_matching_check マッチングしてるかの確認
@@ -11,9 +10,11 @@ def main(event, context):
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()
-    terminal_id = queryStringParameters.get('terminal_id', None)
-    if terminal_id is None:
-        return httputils.return400()
+    terminal_id = queryStringParameters.get('terminal_id', 'anonymous')
+    app_id = queryStringParameters.get('app_id', 'anonymous')
+    if app_id == 'vrc':
+        # プレフィクスとしてIPアドレスを付与
+        terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
     # 取得
     entry = ddbutils.get_entry(terminal_id)
     if entry is None:
@@ -23,24 +24,28 @@ def main(event, context):
     match_id = entry.get('match_id')
     if match_id is None:
         print('match_id is None 未マッチング')
+        response = datautils.MatchingCheckResponse('ENTRYED', False, match_id)
         return {
             'headers': {
                 "Access-Control-Allow-Origin": "*"
             },
             'statusCode': 200,
-            'body': json.dumps(entry)
+            'body': datautils.responseJson(response)
         }
     match = ddbutils.get_match(match_id)
     if match is None:
         print('match is None')
         return httputils.return400()
-    entry['terminal_id_A'] = match.get('terminal_id_A')
-    entry['terminal_id_B'] = match.get('terminal_id_B')
+    # terminal_id_A が 自身と一致する場合先行フラグを建てる
+    is_first = False
+    if match.get('terminal_id_A', '') == terminal_id:
+        is_first = True
+    response = datautils.MatchingCheckResponse(match.get('status'), is_first, match_id)
     # 結果通知
     return {
         'headers': {
             "Access-Control-Allow-Origin": "*"
         },
         'statusCode': 200,
-        'body': json.dumps(entry)
+        'body': datautils.responseJson(response)
     }
