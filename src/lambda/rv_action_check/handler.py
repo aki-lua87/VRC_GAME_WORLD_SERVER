@@ -6,7 +6,6 @@ import httputils
 # rv_action_check 手取得
 def main(event, context):
     print('event:', event)
-    print('context:', context)
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()

@@ -7,7 +7,6 @@ import httputils
 
 def main(event, context):
     print('event:', event)
-    print('context:', context)
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()
@@ -29,14 +28,20 @@ def main(event, context):
     if stand_by is None:
         # 待機登録
         ddbutils.regist_stand_by(terminal_id)
+        print('regist_entry 待機登録')
+        print('terminal_id:', terminal_id)
         return httputils.return200()
     # 自身が待機中の場合はマッチングしない
     if stand_by.get('attribute_key') == terminal_id:
+        print('regist_entry 待機中')
         return httputils.return200()
     # マッチング
     match_id = str(uuid.uuid4())
     ddbutils.regist_match(stand_by.get('attribute_key'), terminal_id, match_id)
     response = datautils.EntryRegistResponse('MATCHED', match_id)
+    print('regist_entry マッチング')
+    print('terminal_id:', terminal_id)
+    print('match_id:', match_id)
     # マッチング結果通知
     return {
         'headers': {
