@@ -19,11 +19,11 @@ class MatchingCheckResponse:
     match_id: str = ""
 
 
-# @dataclasses.dataclass
-# class ActionRegistResponse:
-#     status: str = ""
-#     latest: str = ""
-#     history: bool = False
+@dataclasses.dataclass
+class ActionRegistResponse:
+    status: str = ""
+    latest: str = ""
+    history: list = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass

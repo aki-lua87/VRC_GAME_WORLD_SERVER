@@ -2,6 +2,7 @@
 
 import ddbutils
 import httputils
+import datautils
 
 
 # rv_regist_action
@@ -32,5 +33,14 @@ def main(event, context):
         return httputils.return400()
     # actionを登録
     ddbutils.regist_action(match_id, terminal_id, action)
+    # マッチ情報を返却
+    match = ddbutils.get_match(match_id)
+    response = datautils.ActionRegistResponse(match.get('status'), match.get('latest'), match.get('history'))
     # return
-    return httputils.return200()
+    return {
+        'headers': {
+            "Access-Control-Allow-Origin": "*"
+        },
+        'statusCode': 200,
+        'body': datautils.responseJson(response)
+    }
