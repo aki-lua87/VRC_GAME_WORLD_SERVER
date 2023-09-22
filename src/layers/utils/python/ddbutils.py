@@ -59,6 +59,15 @@ def regist_entry(terminal_id):
     )
 
 
+def delete_entry(terminal_id):
+    table.delete_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}',
+        }
+    )
+
+
 # ## match_id schema
 # attribute_name match_id
 # attribute_key {match_id}
@@ -196,5 +205,5 @@ def ttl():
 # 15分で破棄
 def ttlEntry():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(minutes=15)
+    expiration_date = start + datetime.timedelta(minutes=59)
     return round(expiration_date.timestamp())

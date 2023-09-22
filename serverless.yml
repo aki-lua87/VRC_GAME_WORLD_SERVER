@@ -106,6 +106,20 @@ functions:
       - http:
           path: /rv/action/check
           method: get
+  rv_entry_canncel:
+    handler: src/lambda/rv_entry_canncel/handler.main
+    package:
+      include:
+        - src/lambda/rv_entry_canncel/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/entry/canncel
+          method: get
 
 resources:
   Resources:
