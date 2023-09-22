@@ -2,7 +2,6 @@ import ddbutils
 import httputils
 
 
-# rv_action_check 手取得
 def main(event, context):
     print('event:', event)
     queryStringParameters = event.get('queryStringParameters')
@@ -22,6 +21,7 @@ def main(event, context):
     # マッチ前なら削除
     if entry.get('status') == 'ENTRYED':
         ddbutils.delete_entry(terminal_id)
+        ddbutils.delete_stand_by(terminal_id)
         return httputils.return200()
     # マッチ情報取得
     match_id = entry.get('match_id')

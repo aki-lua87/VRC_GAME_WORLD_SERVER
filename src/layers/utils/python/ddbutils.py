@@ -29,6 +29,15 @@ def get_stand_by():
     return records[0]
 
 
+def delete_stand_by(terminal_id):
+    table.delete_item(
+        Key={
+            'attribute_name': 'stand_by',
+            'attribute_key': f'{terminal_id}',
+        }
+    )
+
+
 # ## terminal_id schema
 # attribute_name terminal_id
 # attribute_key {terminal_id}
@@ -195,15 +204,15 @@ def regist_action(match_id, terminal_id, action):
     )
 
 
-# 4時間で破棄
+# 破棄1
 def ttl():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(hours=4)
+    expiration_date = start + datetime.timedelta(days=12)
     return round(expiration_date.timestamp())
 
 
-# 15分で破棄
+# 破棄2
 def ttlEntry():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(minutes=59)
+    expiration_date = start + datetime.timedelta(minutes=30)
     return round(expiration_date.timestamp())
