@@ -14,6 +14,7 @@ def regist_stand_by(terminal_id):
             'attribute_name': 'stand_by',
             'attribute_key': f'{terminal_id}',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttlEntry()
         }
     )
 
@@ -26,6 +27,15 @@ def get_stand_by():
     if len(records) == 0:
         return None
     return records[0]
+
+
+def delete_stand_by(terminal_id):
+    table.delete_item(
+        Key={
+            'attribute_name': 'stand_by',
+            'attribute_key': f'{terminal_id}',
+        }
+    )
 
 
 # ## terminal_id schema
@@ -53,6 +63,16 @@ def regist_entry(terminal_id):
             'attribute_key': f'{terminal_id}',
             'status': 'ENTRYED',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
+        }
+    )
+
+
+def delete_entry(terminal_id):
+    table.delete_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}',
         }
     )
 
@@ -83,6 +103,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'latest': '',
             'status': 'MATCHED',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
         }
     )
     # ステータスを更新
@@ -93,6 +114,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'status': 'MATCHED',
             'match_id': f'{match_id}',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
         }
     )
     table.put_item(
@@ -102,6 +124,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'status': 'MATCHED',
             'match_id': f'{match_id}',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
         }
     )
     return match_id
@@ -133,6 +156,7 @@ def match_cancel(match_id):
             'status': 'CANCELED',
             'match_id': f'{match_id}',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
         }
     )
     table.put_item(
@@ -142,6 +166,7 @@ def match_cancel(match_id):
             'status': 'CANCELED',
             'match_id': f'{match_id}',
             'updated_at': datetime.datetime.now().isoformat(),
+            'TTL': ttl()
         }
     )
     table.update_item(
@@ -177,3 +202,17 @@ def regist_action(match_id, terminal_id, action):
             ":value3": terminal_id
         }
     )
+
+
+# 破棄1
+def ttl():
+    start = datetime.datetime.now()
+    expiration_date = start + datetime.timedelta(days=12)
+    return round(expiration_date.timestamp())
+
+
+# 破棄2
+def ttlEntry():
+    start = datetime.datetime.now()
+    expiration_date = start + datetime.timedelta(minutes=30)
+    return round(expiration_date.timestamp())

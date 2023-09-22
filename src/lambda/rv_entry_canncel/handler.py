@@ -1,9 +1,7 @@
-import datautils
 import ddbutils
 import httputils
 
 
-# rv_action_check 手取得
 def main(event, context):
     print('event:', event)
     queryStringParameters = event.get('queryStringParameters')
@@ -20,6 +18,11 @@ def main(event, context):
     entry = ddbutils.get_entry(terminal_id)
     if entry is None:
         return httputils.return400()
+    # マッチ前なら削除
+    if entry.get('status') == 'ENTRYED':
+        ddbutils.delete_entry(terminal_id)
+        ddbutils.delete_stand_by(terminal_id)
+        return httputils.return200()
     # マッチ情報取得
     match_id = entry.get('match_id')
     if match_id is None:
@@ -27,12 +30,6 @@ def main(event, context):
     match = ddbutils.get_match(match_id)
     if match is None:
         return httputils.return400()
-    response = datautils.ActionGetResponse(match.get('status'), match.get('latest'), match.get('history'))
-    # マッチ情報を返却
-    return {
-        'headers': {
-            "Access-Control-Allow-Origin": "*"
-        },
-        'statusCode': 200,
-        'body': datautils.responseJson(response)
-    }
+    # マッチをすべてキャンセル
+    ddbutils.match_cancel(match_id)
+    return httputils.return200()
