@@ -21,10 +21,13 @@ def main(event, context):
         print('action is None')
         return httputils.return400()
     # 端末情報取得
-    entry = ddbutils.get_entry(terminal_id)
+    entry = ddbutils.get_terminal(terminal_id)
     if entry is None:
         print('terminal_id:', terminal_id)
-        print('get_entry is None')
+        print('get_terminal is None')
+        return httputils.return400()
+    if entry.get('status') != datautils.STATUS_MATCHED:
+        print('status is not MATCHED')
         return httputils.return400()
     # マッチID取得
     match_id = entry.get('match_id')

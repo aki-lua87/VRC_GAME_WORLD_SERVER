@@ -4,6 +4,8 @@ import datautils
 import ddbutils
 import httputils
 
+from random import randint
+
 
 def main(event, context):
     print('event:', event)
@@ -15,31 +17,71 @@ def main(event, context):
     if app_id == 'vrc':
         # プレフィクスとしてIPアドレスを付与
         terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
-    # 自身がマッチング中の場合はそのマッチングをキャンセル
-    entry = ddbutils.get_entry(terminal_id)
-    if entry is not None:
-        status = entry.get('status')
-        if status == 'MATCHED':
-            ddbutils.match_cancel(entry.get('match_id'))
-    # 登録
-    ddbutils.regist_entry(terminal_id)
+    # 自身がマッチング中の場合はそのマッチングをキャンセル 対戦相手に通知用の処理
+    terminal = ddbutils.get_terminal(terminal_id)
+    if terminal is not None:
+        status = terminal.get('status')
+        if status == datautils.STATUS_MATCHED:
+            ddbutils.match_cancel(terminal.get('match_id'))
+
     # 待機確認
     stand_by = ddbutils.get_stand_by()
+    # webの場合は待機登録ぜずマッチング確認
+    if app_id == 'web':
+        if stand_by is None:
+            response = datautils.EntryRegistResponse('invalid', 'none')
+            return {
+                'headers': {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                'statusCode': 200,
+                'body': datautils.responseJson(response)
+            }
+        else:
+            # マッチング
+            print('WEB マッチング')
+            match_id = str(uuid.uuid4())
+            terminalA = stand_by.get('attribute_key')
+            terminalB = terminal_id
+            num = randint(0, 11)
+            if num < 6:
+                terminalA = terminal_id
+                terminalB = stand_by.get('attribute_key')
+            ddbutils.regist_terminal(terminal_id, ddbutils.makeTTLdays(1), 'web_client')
+            ddbutils.regist_match(terminalA, terminalB, match_id)
+            response = datautils.EntryRegistResponse(datautils.STATUS_MATCHED, match_id)
+            # マッチング結果通知
+            return {
+                'headers': {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                'statusCode': 200,
+                'body': datautils.responseJson(response)
+            }
+    # 端末が登録されて無い場合は登録
+    if terminal is None:
+        ddbutils.regist_terminal(terminal_id, ddbutils.makeTTLdays(14), 'anonymous')
     if stand_by is None:
         # 待機登録
         ddbutils.regist_stand_by(terminal_id)
-        print('regist_entry 待機登録')
-        print('terminal_id:', terminal_id)
+        ddbutils.update_terminal_entry(terminal_id)
         return httputils.return200()
     # 自身が待機中の場合はマッチングしない
     if stand_by.get('attribute_key') == terminal_id:
-        print('regist_entry 待機中')
+        ddbutils.update_terminal_entry(terminal_id)  # おそらく不要だが状態遷移のズレがありそうなため追加
         return httputils.return200()
     # マッチング
     match_id = str(uuid.uuid4())
-    ddbutils.regist_match(stand_by.get('attribute_key'), terminal_id, match_id)
-    response = datautils.EntryRegistResponse('MATCHED', match_id)
-    print('regist_entry マッチング')
+    terminalA = stand_by.get('attribute_key')
+    terminalB = terminal_id
+    # 確率で先行後攻を入れ替える
+    num = randint(0, 11)
+    if num < 6:
+        terminalA = terminal_id
+        terminalB = stand_by.get('attribute_key')
+    ddbutils.regist_match(terminalA, terminalB, match_id)
+    response = datautils.EntryRegistResponse(datautils.STATUS_MATCHED, match_id)
+    print('regist_terminal マッチング')
     print('terminal_id:', terminal_id)
     print('match_id:', match_id)
     # マッチング結果通知

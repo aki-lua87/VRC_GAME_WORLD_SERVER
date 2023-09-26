@@ -9,7 +9,7 @@ def return400(message='bad request'):
         'statusCode': 400,
         'body': json.dumps(
             {
-                'status': 'ERROR',
+                'status': 'CANCELED',
                 'error': message
             }
         )

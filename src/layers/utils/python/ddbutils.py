@@ -13,7 +13,7 @@ def regist_stand_by(terminal_id):
         Item={
             'attribute_name': 'stand_by',
             'attribute_key': f'{terminal_id}',
-            'updated_at': datetime.datetime.now().isoformat(),
+            'registed_at': datetime.datetime.now().isoformat(),
             'TTL': ttlEntry()
         }
     )
@@ -43,7 +43,7 @@ def delete_stand_by(terminal_id):
 # attribute_key {terminal_id}
 # status {ENTRYED, MATCHED, ENDED, CANCELED}
 # match_id {match_id}
-def get_entry(terminal_id):
+def get_terminal(terminal_id):
     response = table.get_item(
         Key={
             'attribute_name': 'terminal_id',
@@ -56,23 +56,79 @@ def get_entry(terminal_id):
     return record
 
 
-def regist_entry(terminal_id):
+def regist_terminal(terminal_id, TTL, user_name='anonymous'):
     table.put_item(
         Item={
             'attribute_name': 'terminal_id',
             'attribute_key': f'{terminal_id}',
+            'match_id': 'none',
             'status': 'ENTRYED',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
+            'registed_at': datetime.datetime.now().isoformat(),
+            'TTL': TTL,
+            'user_name': user_name
         }
     )
 
 
-def delete_entry(terminal_id):
+def delete_terminal(terminal_id):
     table.delete_item(
         Key={
             'attribute_name': 'terminal_id',
             'attribute_key': f'{terminal_id}',
+        }
+    )
+
+
+def update_terminal_matching(terminal_id, match_id):
+    table.update_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}'
+        },
+        UpdateExpression="SET #status = :status, #match_id = :match_id",
+        ExpressionAttributeNames={
+            '#status': 'status',
+            '#match_id': 'match_id'
+        },
+        ExpressionAttributeValues={
+            ":status": 'MATCHED',
+            ":match_id": f'{match_id}'
+        }
+    )
+
+
+def update_terminal_cancel(terminal_id):
+    table.update_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}'
+        },
+        UpdateExpression="SET #status = :status, #match_id = :match_id",
+        ExpressionAttributeNames={
+            '#status': 'status',
+            '#match_id': 'match_id'
+        },
+        ExpressionAttributeValues={
+            ":status": 'CANCELED',
+            ":match_id": 'none'
+        }
+    )
+
+
+def update_terminal_entry(terminal_id):
+    table.update_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}'
+        },
+        UpdateExpression="SET #status = :status, #match_id = :match_id",
+        ExpressionAttributeNames={
+            '#status': 'status',
+            '#match_id': 'match_id'
+        },
+        ExpressionAttributeValues={
+            ":status": 'ENTRYED',
+            ":match_id": 'none'
         }
     )
 
@@ -86,12 +142,7 @@ def delete_entry(terminal_id):
 # latest {terminal_id_A}
 def regist_match(terminal_id_A, terminal_id_B, match_id):
     # 待機を削除
-    table.delete_item(
-        Key={
-            'attribute_name': 'stand_by',
-            'attribute_key': f'{terminal_id_A}',
-        }
-    )
+    delete_stand_by(terminal_id_A)
     # マッチを登録
     table.put_item(
         Item={
@@ -102,31 +153,13 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'history': [],
             'latest': '',
             'status': 'MATCHED',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
+            'registed_at': datetime.datetime.now().isoformat(),
+            'TTL': makeTTLdays(14)
         }
     )
     # ステータスを更新
-    table.put_item(
-        Item={
-            'attribute_name': 'terminal_id',
-            'attribute_key': f'{terminal_id_A}',
-            'status': 'MATCHED',
-            'match_id': f'{match_id}',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
-        }
-    )
-    table.put_item(
-        Item={
-            'attribute_name': 'terminal_id',
-            'attribute_key': f'{terminal_id_B}',
-            'status': 'MATCHED',
-            'match_id': f'{match_id}',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
-        }
-    )
+    update_terminal_matching(terminal_id_A, match_id)
+    update_terminal_matching(terminal_id_B, match_id)
     return match_id
 
 
@@ -149,26 +182,8 @@ def match_cancel(match_id):
         return None
     terminal_id_A = match.get('terminal_id_A')
     terminal_id_B = match.get('terminal_id_B')
-    table.put_item(
-        Item={
-            'attribute_name': 'terminal_id',
-            'attribute_key': f'{terminal_id_A}',
-            'status': 'CANCELED',
-            'match_id': f'{match_id}',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
-        }
-    )
-    table.put_item(
-        Item={
-            'attribute_name': 'terminal_id',
-            'attribute_key': f'{terminal_id_B}',
-            'status': 'CANCELED',
-            'match_id': f'{match_id}',
-            'updated_at': datetime.datetime.now().isoformat(),
-            'TTL': ttl()
-        }
-    )
+    update_terminal_cancel(terminal_id_A)
+    update_terminal_cancel(terminal_id_B)
     table.update_item(
         Key={
             'attribute_name': 'match_id',
@@ -204,15 +219,19 @@ def regist_action(match_id, terminal_id, action):
     )
 
 
-# 破棄1
-def ttl():
+def ttlEntry():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(days=12)
+    expiration_date = start + datetime.timedelta(minutes=45)
     return round(expiration_date.timestamp())
 
 
-# 破棄2
-def ttlEntry():
+def makeTTLdays(days):
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(minutes=30)
+    expiration_date = start + datetime.timedelta(days=days)
+    return round(expiration_date.timestamp())
+
+
+def makeTTLhours(hours):
+    start = datetime.datetime.now()
+    expiration_date = start + datetime.timedelta(hours=hours)
     return round(expiration_date.timestamp())
