@@ -28,12 +28,12 @@ def main(event, context):
         return httputils.return400()
     if entry.get('status') != datautils.STATUS_MATCHED:
         print('status is not MATCHED')
-        return httputils.return400()
+        return httputils.return200canncel()
     # マッチID取得
     match_id = entry.get('match_id')
-    if match_id is None:
+    if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return400()
+        return httputils.return200canncel()
     # actionを登録
     ddbutils.regist_action(match_id, terminal_id, action)
     # マッチ情報を返却

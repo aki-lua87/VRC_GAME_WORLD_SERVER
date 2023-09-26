@@ -28,3 +28,17 @@ def return200():
             }
         )
     }
+
+
+def return200canncel():
+    return {
+        'headers': {
+            "Access-Control-Allow-Origin": "*"
+        },
+        'statusCode': 200,
+        'body': json.dumps(
+            {
+                'status': 'CANCELED'
+            }
+        )
+    }

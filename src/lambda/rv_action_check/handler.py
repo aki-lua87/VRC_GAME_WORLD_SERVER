@@ -25,9 +25,9 @@ def main(event, context):
         return httputils.return400()
     # マッチ情報取得
     match_id = entry.get('match_id')
-    if match_id is None:
+    if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return400()
+        return httputils.return200canncel()
     match = ddbutils.get_match(match_id)
     if match is None:
         print('match is None')
