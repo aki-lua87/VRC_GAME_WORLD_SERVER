@@ -35,7 +35,9 @@ class ActionGetResponse:
 
 
 # 状態
+STATUS_STANDBY = 'STANDBY'  # 待機中
 STATUS_ENTRYED = 'ENTRYED'  # エントリー済み、かつマッチング前
 STATUS_MATCHED = 'MATCHED'  # 対戦中
+STATUS_GIVEUP = 'GIVEUP'  # 対戦中にギブアップ
 STATUS_CANCELED = 'CANCELED'  # リセット押下、または不明なエラー
 STATUS_FINISHED = 'FINISHED'  # 現状これに遷移できない

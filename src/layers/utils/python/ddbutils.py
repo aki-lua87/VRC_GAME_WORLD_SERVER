@@ -3,6 +3,8 @@ import boto3
 import datetime
 from boto3.dynamodb.conditions import Key
 
+import datautils
+
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE'])
 
@@ -56,13 +58,13 @@ def get_terminal(terminal_id):
     return record
 
 
-def regist_terminal(terminal_id, TTL, user_name='anonymous'):
+def regist_terminal(terminal_id, TTL, user_name='anonymous', status=datautils.STATUS_ENTRYED):
     table.put_item(
         Item={
             'attribute_name': 'terminal_id',
             'attribute_key': f'{terminal_id}',
             'match_id': 'none',
-            'status': 'ENTRYED',
+            'status': status,
             'registed_at': datetime.datetime.now().isoformat(),
             'TTL': TTL,
             'user_name': user_name
@@ -91,7 +93,7 @@ def update_terminal_matching(terminal_id, match_id):
             '#match_id': 'match_id'
         },
         ExpressionAttributeValues={
-            ":status": 'MATCHED',
+            ":status": datautils.STATUS_MATCHED,
             ":match_id": f'{match_id}'
         }
     )
@@ -109,7 +111,41 @@ def update_terminal_cancel(terminal_id):
             '#match_id': 'match_id'
         },
         ExpressionAttributeValues={
-            ":status": 'CANCELED',
+            ":status": datautils.STATUS_FINISHED,
+            ":match_id": 'none'
+        }
+    )
+
+
+def update_terminal_name(terminal_id, name):
+    table.update_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}'
+        },
+        UpdateExpression="SET #name = :name",
+        ExpressionAttributeNames={
+            '#name': 'name',
+        },
+        ExpressionAttributeValues={
+            ":name": name,
+        }
+    )
+
+
+def update_terminal_giveup(terminal_id):
+    table.update_item(
+        Key={
+            'attribute_name': 'terminal_id',
+            'attribute_key': f'{terminal_id}'
+        },
+        UpdateExpression="SET #status = :status, #match_id = :match_id",
+        ExpressionAttributeNames={
+            '#status': 'status',
+            '#match_id': 'match_id'
+        },
+        ExpressionAttributeValues={
+            ":status": datautils.STATUS_GIVEUP,
             ":match_id": 'none'
         }
     )
@@ -127,7 +163,7 @@ def update_terminal_entry(terminal_id):
             '#match_id': 'match_id'
         },
         ExpressionAttributeValues={
-            ":status": 'ENTRYED',
+            ":status": datautils.STATUS_ENTRYED,
             ":match_id": 'none'
         }
     )
@@ -152,7 +188,7 @@ def regist_match(terminal_id_A, terminal_id_B, match_id):
             'terminal_id_B': f'{terminal_id_B}',
             'history': [],
             'latest': '',
-            'status': 'MATCHED',
+            'status': datautils.STATUS_MATCHED,
             'registed_at': datetime.datetime.now().isoformat(),
             'TTL': makeTTLdays(14)
         }
@@ -176,6 +212,25 @@ def get_match(match_id):
     return record
 
 
+def match_giveup(match_id):
+    match = get_match(match_id)
+    if match is None:
+        return None
+    table.update_item(
+        Key={
+            'attribute_name': 'match_id',
+            'attribute_key': f'{match_id}'
+        },
+        UpdateExpression="SET #status = :status",
+        ExpressionAttributeNames={
+            '#status': 'status'
+        },
+        ExpressionAttributeValues={
+            ":status": datautils.STATUS_GIVEUP
+        }
+    )
+
+
 def match_cancel(match_id):
     match = get_match(match_id)
     if match is None:
@@ -194,7 +249,7 @@ def match_cancel(match_id):
             '#status': 'status'
         },
         ExpressionAttributeValues={
-            ":status": 'CANCELED'
+            ":status": datautils.STATUS_FINISHED
         }
     )
 

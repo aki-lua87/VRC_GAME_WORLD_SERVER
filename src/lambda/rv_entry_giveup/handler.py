@@ -2,9 +2,6 @@ import ddbutils
 import httputils
 
 
-# これはキャンセルというよりリセットにすべき
-# プレイヤーStanby マッチCanncel
-
 def main(event, context):
     print('event:', event)
     queryStringParameters = event.get('queryStringParameters')
@@ -20,26 +17,22 @@ def main(event, context):
         # プレフィクスとしてIPアドレスを付与
         terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
     # 端末情報取得
-    entry = ddbutils.get_terminal(terminal_id)
-    if entry is None:
+    terminal = ddbutils.get_terminal(terminal_id)
+    if terminal is None:
         print('entry is None')
         return httputils.return400()
-    # マッチ前なら削除
-    if entry.get('status') == 'ENTRYED':
-        print('entry status is ENTRYED')
-        ddbutils.update_terminal_cancel(terminal_id)
-        ddbutils.delete_stand_by(terminal_id)
-        return httputils.return200()
+    # action/checkのレスポンスがギブアップなら相手のギブアップと判定したい
+    ddbutils.update_terminal_giveup(terminal_id)
+    ddbutils.delete_stand_by(terminal_id)
     # マッチ情報取得
-    match_id = entry.get('match_id')
+    match_id = terminal.get('match_id')
     if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return200canncel()
+        return httputils.return200()
     match = ddbutils.get_match(match_id)
     if match is None:
         print('match is None')
         return httputils.return400()
-    # マッチをすべてキャンセル
-    print('match_cancel')
-    ddbutils.match_cancel(match_id)
+    print('match_giveup')
+    ddbutils.match_giveup(match_id)
     return httputils.return200()

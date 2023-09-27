@@ -120,6 +120,34 @@ functions:
       - http:
           path: /rv/entry/canncel
           method: get
+  rv_entry_giveup:
+    handler: src/lambda/rv_entry_giveup/handler.main
+    package:
+      include:
+        - src/lambda/rv_entry_giveup/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/entry/giveup
+          method: get
+  rv_terminal_regist:
+    handler: src/lambda/rv_terminal_regist/handler.main
+    package:
+      include:
+        - src/lambda/rv_terminal_regist/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/terminal/regist
+          method: get
 
 resources:
   Resources:
