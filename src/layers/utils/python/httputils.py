@@ -9,7 +9,7 @@ def return400(message='bad request'):
         'statusCode': 400,
         'body': json.dumps(
             {
-                'status': 'CANCELED',
+                'result': 'ERROR',
                 'error': message
             }
         )
@@ -24,12 +24,13 @@ def return200():
         'statusCode': 200,
         'body': json.dumps(
             {
-                'status': 'OK'
+                'result': 'OK'
             }
         )
     }
 
 
+# クライアントでキャンセルを取得したい場合のみ使用
 def return200canncel():
     return {
         'headers': {
@@ -41,4 +42,14 @@ def return200canncel():
                 'status': 'CANCELED'
             }
         )
+    }
+
+
+def return200response(responseJson):
+    return {
+        'headers': {
+            "Access-Control-Allow-Origin": "*"
+        },
+        'statusCode': 200,
+        'body': responseJson
     }

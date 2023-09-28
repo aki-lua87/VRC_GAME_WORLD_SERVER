@@ -9,7 +9,7 @@ def responseJson(data):
 @dataclasses.dataclass
 class EntryRegistResponse:
     status: str = ""
-    match_id: str = ""
+    user_name: str = ""
 
 
 @dataclasses.dataclass

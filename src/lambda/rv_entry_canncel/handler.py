@@ -34,7 +34,7 @@ def main(event, context):
     match_id = entry.get('match_id')
     if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return200canncel()
+        return httputils.return200()
     match = ddbutils.get_match(match_id)
     if match is None:
         print('match is None')
