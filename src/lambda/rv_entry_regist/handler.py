@@ -45,7 +45,7 @@ def main(event, context):
             match_id = str(uuid.uuid4())
             terminalA = stand_by.get('attribute_key')
             # 待機相手を削除
-            datautils.delete_stand_by(terminalA)
+            ddbutils.delete_stand_by(terminalA)
             # 先攻後攻を決めるA/Bを入れ替え
             terminalB = terminal_id
             num = randint(0, 11)
@@ -86,7 +86,7 @@ def main(event, context):
     match_id = str(uuid.uuid4())
     terminalA = stand_by.get('attribute_key')
     # 待機相手を削除
-    datautils.delete_stand_by(terminalA)
+    ddbutils.delete_stand_by(terminalA)
     terminalB = terminal_id
     # 確率で先行後攻を入れ替える
     num = randint(0, 11)
