@@ -9,7 +9,7 @@ custom:
   table: ${self:service}-${opt:stage}-table
   pythonRequirements:
     dockerizePip: true
-    dockerImage: lambci/lambda:build-python3.8
+    dockerImage: public.ecr.aws/sam/build-python3.10:latest
     useStaticCache: false
     useDownloadCache: false
     layer: true
@@ -18,7 +18,7 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.10
   region: ap-northeast-1
   role: ${env:LAMBDA_IAM}
   timeout: 7
@@ -57,6 +57,8 @@ functions:
         - src/lambda/rv_entry_regist/handler.py
     environment:
       TABLE: ${self:custom.table}
+      NOTIC_URL: ${env:NOTIC_URL}
+      OTHELLO_URL: ${env:OTHELLO_URL}
     layers:
       - { Ref: UtilsLayerLambdaLayer }
       - { Ref: PythonRequirementsLambdaLayer }

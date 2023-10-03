@@ -125,7 +125,7 @@ def update_terminal_name(terminal_id, name):
         },
         UpdateExpression="SET #name = :name",
         ExpressionAttributeNames={
-            '#name': 'name',
+            '#name': 'user_name',
         },
         ExpressionAttributeValues={
             ":name": name,
@@ -177,8 +177,6 @@ def update_terminal_entry(terminal_id):
 # history {terminal_id_A, terminal_id_B, terminal_id_A, terminal_id_B, ...}
 # latest {terminal_id_A}
 def regist_match(terminal_id_A, terminal_id_B, match_id):
-    # 待機を削除
-    delete_stand_by(terminal_id_A)
     # マッチを登録
     table.put_item(
         Item={

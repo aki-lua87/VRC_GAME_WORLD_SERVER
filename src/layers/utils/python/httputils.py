@@ -1,4 +1,6 @@
 import json
+import os
+import requests
 
 
 def return400(message='bad request'):
@@ -53,3 +55,12 @@ def return200response(responseJson):
         'statusCode': 200,
         'body': responseJson
     }
+
+
+def postWebhook(stringdata):
+    url = os.environ['NOTIC_URL']
+    print('url:', url + ' ' + stringdata)
+    main_content = {
+        "content": stringdata + ' ' + os.environ['OTHELLO_URL']
+    }
+    requests.post(url, main_content)

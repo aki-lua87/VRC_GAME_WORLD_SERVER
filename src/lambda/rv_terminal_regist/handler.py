@@ -23,8 +23,10 @@ def main(event, context):
     terminal = ddbutils.get_terminal(terminal_id)
     if terminal is None:
         # 端末が登録されて無い場合は登録
+        print('regist_terminal', terminal_id, name)
         ddbutils.regist_terminal(terminal_id, ddbutils.makeTTLdays(24), name, datautils.STATUS_STANDBY)
     else:
         # 端末が登録されている場合は更新
+        print('update_terminal_name', terminal_id, name)
         ddbutils.update_terminal_name(terminal_id, name)
     return httputils.return200()

@@ -23,6 +23,7 @@ def main(event, context):
         return httputils.return400()
     # action/checkのレスポンスがギブアップなら相手のギブアップと判定したい
     ddbutils.update_terminal_giveup(terminal_id)
+    # Standby値は不正なので念のため削除を実施
     ddbutils.delete_stand_by(terminal_id)
     # マッチ情報取得
     match_id = terminal.get('match_id')
