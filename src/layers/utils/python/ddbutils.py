@@ -274,7 +274,7 @@ def regist_action(match_id, terminal_id, action):
 
 def ttlEntry():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(minutes=45)
+    expiration_date = start + datetime.timedelta(hours=6)
     return round(expiration_date.timestamp())
 
 

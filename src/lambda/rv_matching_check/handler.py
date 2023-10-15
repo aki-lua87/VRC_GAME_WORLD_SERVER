@@ -20,6 +20,19 @@ def main(event, context):
     if entry is None:
         print('entry is None')
         return httputils.return200canncel()
+    # スタンバイがあるか
+    # stand_by = ddbutils.get_stand_by()
+    # if stand_by is None:
+    #     # スタンバイがない場合不正
+    #     print('stand_by None')
+    #     response = datautils.MatchingCheckResponse('ERROR', False, 'none', 'none')
+    #     return {
+    #         'headers': {
+    #             "Access-Control-Allow-Origin": "*"
+    #         },
+    #         'statusCode': 200,
+    #         'body': datautils.responseJson(response)
+    #     }
     # マッチング取得
     match_id = entry.get('match_id')
     if match_id is None or match_id == 'none':

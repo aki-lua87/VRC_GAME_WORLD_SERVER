@@ -61,6 +61,6 @@ def postWebhook(stringdata):
     url = os.environ['NOTIC_URL']
     print('url:', url + ' ' + stringdata)
     main_content = {
-        "content": stringdata + ' ' + os.environ['OTHELLO_URL']
+        "content": stringdata
     }
     requests.post(url, main_content)

@@ -1,4 +1,5 @@
 import uuid
+import os
 
 import datautils
 import ddbutils
@@ -9,6 +10,7 @@ from random import randint
 
 def main(event, context):
     print('event:', event)
+    weburl = os.environ['OTHELLO_URL']
     queryStringParameters = event.get('queryStringParameters')
     if queryStringParameters is None:
         return httputils.return400()
@@ -31,6 +33,7 @@ def main(event, context):
     # webの場合は待機登録ぜずマッチング確認
     if app_id == 'web':
         if stand_by is None:
+            print('WEB マッチング無し')
             response = datautils.EntryRegistResponse('invalid', 'none')
             return {
                 'headers': {
@@ -41,7 +44,7 @@ def main(event, context):
             }
         else:
             # マッチング
-            print('WEB マッチング')
+            print('WEB マッチングあり')
             match_id = str(uuid.uuid4())
             terminalA = stand_by.get('attribute_key')
             # 待機相手を削除
@@ -56,6 +59,7 @@ def main(event, context):
             ddbutils.regist_match(terminalA, terminalB, match_id)
             response = datautils.EntryRegistResponse(datautils.STATUS_MATCHED, username)
             # マッチング結果通知
+            httputils.postWebhook(f'マッチングしたみたい {weburl}kansen?match_id={match_id}')
             return {
                 'headers': {
                     "Access-Control-Allow-Origin": "*"
@@ -72,7 +76,7 @@ def main(event, context):
         ddbutils.regist_stand_by(terminal_id)
         ddbutils.update_terminal_entry(terminal_id)
         # 何らかの通知 デバッグ用
-        httputils.postWebhook('ワールド間対戦オセロでマッチング募集中のユーザがいるかも？')
+        httputils.postWebhook(f'ワールド間対戦オセロでマッチング募集中のユーザがいるかも？ {weburl}')
         # レスポンス
         response = datautils.EntryRegistResponse(datautils.STATUS_ENTRYED, username)
         return httputils.return200response(datautils.responseJson(response))
@@ -98,6 +102,7 @@ def main(event, context):
     print('regist_terminal マッチング')
     print('terminal_id:', terminal_id)
     print('match_id:', match_id)
+    httputils.postWebhook(f'マッチングしたみたい {weburl}/kansen?match_id={match_id}')
     # マッチング結果通知
     return httputils.return200response(datautils.responseJson(response))
 

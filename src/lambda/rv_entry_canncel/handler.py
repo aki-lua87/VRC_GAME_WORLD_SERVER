@@ -29,6 +29,7 @@ def main(event, context):
         print('entry status is ENTRYED')
         ddbutils.update_terminal_cancel(terminal_id)
         ddbutils.delete_stand_by(terminal_id)
+        httputils.postWebhook('キャンセルしたみたい')
         return httputils.return200()
     # マッチ情報取得
     match_id = entry.get('match_id')

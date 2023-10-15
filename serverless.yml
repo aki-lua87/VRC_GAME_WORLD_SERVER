@@ -115,6 +115,7 @@ functions:
         - src/lambda/rv_entry_canncel/handler.py
     environment:
       TABLE: ${self:custom.table}
+      NOTIC_URL: ${env:NOTIC_URL}
     layers:
       - { Ref: UtilsLayerLambdaLayer }
       - { Ref: PythonRequirementsLambdaLayer }
@@ -149,6 +150,20 @@ functions:
     events:
       - http:
           path: /rv/terminal/regist
+          method: get
+  rv_history:
+    handler: src/lambda/rv_history/handler.main
+    package:
+      include:
+        - src/lambda/rv_history/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/match/data
           method: get
 
 resources:
