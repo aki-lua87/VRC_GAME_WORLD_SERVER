@@ -21,16 +21,19 @@ def main(event, context):
         print('action is None')
         return httputils.return400()
     # 端末情報取得
-    entry = ddbutils.get_entry(terminal_id)
+    entry = ddbutils.get_terminal(terminal_id)
     if entry is None:
         print('terminal_id:', terminal_id)
-        print('get_entry is None')
+        print('get_terminal is None')
         return httputils.return400()
+    if entry.get('status') != datautils.STATUS_MATCHED:
+        print('status is not MATCHED')
+        return httputils.return200canncel()
     # マッチID取得
     match_id = entry.get('match_id')
-    if match_id is None:
+    if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return400()
+        return httputils.return200canncel()
     # actionを登録
     ddbutils.regist_action(match_id, terminal_id, action)
     # マッチ情報を返却

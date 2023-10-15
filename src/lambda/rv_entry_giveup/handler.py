@@ -1,9 +1,7 @@
-import datautils
 import ddbutils
 import httputils
 
 
-# rv_action_check 手取得
 def main(event, context):
     print('event:', event)
     queryStringParameters = event.get('queryStringParameters')
@@ -19,25 +17,23 @@ def main(event, context):
         # プレフィクスとしてIPアドレスを付与
         terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
     # 端末情報取得
-    entry = ddbutils.get_terminal(terminal_id)
-    if entry is None:
+    terminal = ddbutils.get_terminal(terminal_id)
+    if terminal is None:
         print('entry is None')
         return httputils.return400()
+    # action/checkのレスポンスがギブアップなら相手のギブアップと判定したい
+    ddbutils.update_terminal_giveup(terminal_id)
+    # Standby値は不正なので念のため削除を実施
+    ddbutils.delete_stand_by(terminal_id)
     # マッチ情報取得
-    match_id = entry.get('match_id')
+    match_id = terminal.get('match_id')
     if match_id is None or match_id == 'none':
         print('match_id is None')
-        return httputils.return200canncel()
+        return httputils.return200()
     match = ddbutils.get_match(match_id)
     if match is None:
         print('match is None')
         return httputils.return400()
-    response = datautils.ActionGetResponse(match.get('status'), match.get('latest'), match.get('history'))
-    # マッチ情報を返却
-    return {
-        'headers': {
-            "Access-Control-Allow-Origin": "*"
-        },
-        'statusCode': 200,
-        'body': datautils.responseJson(response)
-    }
+    print('match_giveup')
+    ddbutils.match_giveup(match_id)
+    return httputils.return200()

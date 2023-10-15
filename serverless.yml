@@ -9,7 +9,7 @@ custom:
   table: ${self:service}-${opt:stage}-table
   pythonRequirements:
     dockerizePip: true
-    dockerImage: lambci/lambda:build-python3.8
+    dockerImage: public.ecr.aws/sam/build-python3.10:latest
     useStaticCache: false
     useDownloadCache: false
     layer: true
@@ -18,14 +18,14 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.10
   region: ap-northeast-1
   role: ${env:LAMBDA_IAM}
   timeout: 7
   logRetentionInDays: 14
   tracing:
-    apiGateway: true
-    lambda: true
+    apiGateway: false
+    lambda: false
 
 package:
   individually: true
@@ -57,6 +57,8 @@ functions:
         - src/lambda/rv_entry_regist/handler.py
     environment:
       TABLE: ${self:custom.table}
+      NOTIC_URL: ${env:NOTIC_URL}
+      OTHELLO_URL: ${env:OTHELLO_URL}
     layers:
       - { Ref: UtilsLayerLambdaLayer }
       - { Ref: PythonRequirementsLambdaLayer }
@@ -113,12 +115,55 @@ functions:
         - src/lambda/rv_entry_canncel/handler.py
     environment:
       TABLE: ${self:custom.table}
+      NOTIC_URL: ${env:NOTIC_URL}
     layers:
       - { Ref: UtilsLayerLambdaLayer }
       - { Ref: PythonRequirementsLambdaLayer }
     events:
       - http:
           path: /rv/entry/canncel
+          method: get
+  rv_entry_giveup:
+    handler: src/lambda/rv_entry_giveup/handler.main
+    package:
+      include:
+        - src/lambda/rv_entry_giveup/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/entry/giveup
+          method: get
+  rv_terminal_regist:
+    handler: src/lambda/rv_terminal_regist/handler.main
+    package:
+      include:
+        - src/lambda/rv_terminal_regist/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/terminal/regist
+          method: get
+  rv_history:
+    handler: src/lambda/rv_history/handler.main
+    package:
+      include:
+        - src/lambda/rv_history/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /rv/match/data
           method: get
 
 resources:
