@@ -34,6 +34,15 @@ class ActionGetResponse:
     history: list = dataclasses.field(default_factory=list)
 
 
+@dataclasses.dataclass
+class ActionHistoryResponse:
+    status: str = ""
+    latest: str = ""
+    player_black: str = ""
+    player_white: str = ""
+    history: list = dataclasses.field(default_factory=list)
+
+
 # 状態
 STATUS_STANDBY = 'STANDBY'  # 待機中
 STATUS_ENTRYED = 'ENTRYED'  # エントリー済み、かつマッチング前

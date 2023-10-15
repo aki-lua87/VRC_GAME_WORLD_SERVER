@@ -22,7 +22,13 @@ def main(event, context):
     if match is None:
         print('match is None')
         return httputils.return400()
-    response = datautils.ActionGetResponse(match.get('status'), match.get('latest'), match.get('history'))
+    playerA = match.get('terminal_id_A')
+    playerB = match.get('terminal_id_B')
+    entryA = ddbutils.get_terminal(playerA)
+    entryB = ddbutils.get_terminal(playerB)
+    playerAname = entryA.get('user_name', 'anonymous')
+    playerBname = entryB.get('user_name', 'anonymous')
+    response = datautils.ActionHistoryResponse(match.get('status'), match.get('latest'), playerAname, playerBname, match.get('history'))
     # マッチ情報を返却
     return {
         'headers': {
