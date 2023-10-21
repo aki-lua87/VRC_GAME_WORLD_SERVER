@@ -16,9 +16,9 @@ def main(event, context):
     if app_id == 'vrc':
         # プレフィクスとしてIPアドレスを付与
         terminal_id = event.get('requestContext').get('identity').get('sourceIp') + '_' + terminal_id
-    else:
+    # else:
         # VRC以外はダメ、いまのところ
-        return httputils.return400()
+        # return httputils.return400()
     # 登録されているか
     terminal = ddbutils.get_terminal(terminal_id)
     if terminal is None:

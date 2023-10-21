@@ -55,7 +55,8 @@ def main(event, context):
             if num < 6:
                 terminalA = terminal_id
                 terminalB = stand_by.get('attribute_key')
-            ddbutils.regist_terminal(terminal_id, ddbutils.makeTTLdays(1), 'web_client')
+            if terminal is None:
+                ddbutils.regist_terminal(terminal_id, ddbutils.makeTTLdays(1), 'web_client')
             ddbutils.regist_match(terminalA, terminalB, match_id)
             response = datautils.EntryRegistResponse(datautils.STATUS_MATCHED, username)
             # マッチング結果通知
@@ -76,7 +77,7 @@ def main(event, context):
         ddbutils.regist_stand_by(terminal_id)
         ddbutils.update_terminal_entry(terminal_id)
         # 何らかの通知 デバッグ用
-        httputils.postWebhook(f'ワールド間対戦オセロでマッチング募集中のユーザがいるかも？ {weburl}')
+        httputils.postWebhook(f'ワールド間対戦オセロでマッチング募集中のユーザがいるかも？ {weburl}?name=ＶオセラーBOT')
         # レスポンス
         response = datautils.EntryRegistResponse(datautils.STATUS_ENTRYED, username)
         return httputils.return200response(datautils.responseJson(response))
