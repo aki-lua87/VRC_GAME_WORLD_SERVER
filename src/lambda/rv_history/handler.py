@@ -26,8 +26,16 @@ def main(event, context):
     playerB = match.get('terminal_id_B')
     entryA = ddbutils.get_terminal(playerA)
     entryB = ddbutils.get_terminal(playerB)
-    playerAname = entryA.get('user_name', 'anonymous')
-    playerBname = entryB.get('user_name', 'anonymous')
+    playerAname = 'no_data'
+    playerBname = 'no_data'
+    if entryA is None:
+        print('entryA is None')
+    else:
+        playerAname = entryA.get('user_name', 'anonymous')
+    if entryB is None:
+        print('entryB is None')
+    else:
+        playerBname = entryB.get('user_name', 'anonymous')
     response = datautils.ActionHistoryResponse(match.get('status'), match.get('latest'), playerAname, playerBname, match.get('history'))
     # マッチ情報を返却
     return {
