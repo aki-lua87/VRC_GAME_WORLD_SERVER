@@ -1,6 +1,6 @@
 service: vrc-vs-server
 
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 plugins:
   - serverless-python-requirements
@@ -14,13 +14,21 @@ custom:
     useDownloadCache: false
     layer: true
   deploymentBucket:
-    name: ${env:DEPLOY_BUCKET}
+    name: net.akakitune87.serverlessdeoloy
 
 provider:
   name: aws
   runtime: python3.10
   region: ap-northeast-1
-  role: ${env:LAMBDA_IAM}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "arn:aws:dynamodb:ap-northeast-1:*:*"
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "arn:aws:s3:::*"
   timeout: 7
   logRetentionInDays: 14
   tracing:
@@ -165,7 +173,134 @@ functions:
       - http:
           path: /rv/match/data
           method: get
-
+  # DataAPI
+  vgws_start:
+    handler: src/lambda/vgws/start/handler.main
+    package:
+      include:
+        - src/lambda/vgws/start/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/start
+          method: get
+  vgws_update:
+    handler: src/lambda/vgws/update/handler.main
+    package:
+      include:
+        - src/lambda/vgws/update/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/update
+          method: get
+  vgws_finish:
+    handler: src/lambda/vgws/finish/handler.main
+    package:
+      include:
+        - src/lambda/vgws/finish/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/finish
+          method: get
+  vgws_fetch:
+    handler: src/lambda/vgws/fetch/handler.main
+    package:
+      include:
+        - src/lambda/vgws/fetch/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/fetch
+          method: get
+  vgws_fetch_all:
+    handler: src/lambda/vgws/fetch_all/handler.main
+    package:
+      include:
+        - src/lambda/vgws/fetch_all/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/fetchall
+          method: get
+  ### OtherWorldConnection
+  vgws_passcode_register:
+    handler: src/lambda/vgws/passcode/register/handler.main
+    package:
+      include:
+        - src/lambda/vgws/passcode/register/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/passcode/regist
+          method: get
+  vgws_passcode_start:
+    handler: src/lambda/vgws/passcode/start/handler.main
+    package:
+      include:
+        - src/lambda/vgws/passcode/start/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/passcode/prosessing
+          method: get
+  vgws_passcode_answer:
+    handler: src/lambda/vgws/passcode/answer/handler.main
+    package:
+      include:
+        - src/lambda/vgws/passcode/answer/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/passcode/answer
+          method: get
+  vgws_passcode_check:
+    handler: src/lambda/vgws/passcode/check/handler.main
+    package:
+      include:
+        - src/lambda/vgws/passcode/check/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/passcode/check
+          method: get
 resources:
   Resources:
     VRCVSTable:
