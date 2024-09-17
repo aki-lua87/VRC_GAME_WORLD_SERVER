@@ -15,7 +15,7 @@ def main(event, context):
         }
     world_id = queryStringParameters.get('world_id')
     print('world_id:', world_id)
-    pub_passcode = queryStringParameters.get('pub_passcode')
+    pub_passcode = queryStringParameters.get('passcode')
     # ワールドIDとパスコードからプライベートパスコードを取得する
     item = get_priv_passcode(world_id, pub_passcode)
     if item is None:

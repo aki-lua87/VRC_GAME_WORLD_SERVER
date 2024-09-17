@@ -15,8 +15,8 @@ def main(event, context):
         }
     world_id = queryStringParameters.get('world_id')
     print('world_id:', world_id)
-    pub_passcode = queryStringParameters.get('pub_passcode')
-    pri_passcode = queryStringParameters.get('pri_passcode')
+    pub_passcode = queryStringParameters.get('passcode')
+    # pri_passcode = queryStringParameters.get('pri_passcode') ローカルでチェックする！！！ 10000^2のURLが必要になるので
     # ワールドIDとパスコードからプライベートパスコードを取得する
     item = get_priv_passcode(world_id, pub_passcode)
     if item is None:
@@ -32,11 +32,11 @@ def main(event, context):
             'body': 'BadRequest'
         }
     # passcodeのチェック
-    if pri_passcode != item.get('priv_passcode'):
-        return {
-            'statusCode': 200,
-            'body': 'BadAnswer'
-        }
+    # if pri_passcode != item.get('priv_passcode'):
+    #     return {
+    #         'statusCode': 200,
+    #         'body': 'BadAnswer'
+    #     }
     # ステータスを更新する
     update_status(world_id, pub_passcode)
     # 成功を通知
@@ -70,6 +70,6 @@ def update_status(world_id: str, pub_passcode: str):
             '#status': 'status'
         },
         ExpressionAttributeValues={
-            ':status': 'completed'
+            ':status': 'complete'
         }
     )

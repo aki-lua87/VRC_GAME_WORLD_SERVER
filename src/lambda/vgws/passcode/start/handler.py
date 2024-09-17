@@ -15,9 +15,9 @@ def main(event, context):
         }
     world_id = queryStringParameters.get('world_id')
     print('world_id:', world_id)
-    pub_passcode = queryStringParameters.get('pub_passcode')
+    pub_passcode = queryStringParameters.get('passcode')
     # ワールドIDとパスコードからプライベートパスコードを取得する
-    item = get_priv_passcode(world_id, pub_passcode)
+    item = get_passcode(world_id, pub_passcode)
     if item is None:
         return {
             'statusCode': 200,
@@ -40,7 +40,7 @@ def main(event, context):
     }
 
 
-def get_priv_passcode(world_id: str, pub_passcode: str):
+def get_passcode(world_id: str, pub_passcode: str):
     response = table.get_item(
         Key={
             'attribute_name': 'vgws/passcode',

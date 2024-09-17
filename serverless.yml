@@ -271,7 +271,7 @@ functions:
       - { Ref: PythonRequirementsLambdaLayer }
     events:
       - http:
-          path: /vgws/passcode/prosessing
+          path: /vgws/passcode/start
           method: get
   vgws_passcode_answer:
     handler: src/lambda/vgws/passcode/answer/handler.main
