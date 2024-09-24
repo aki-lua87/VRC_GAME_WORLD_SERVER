@@ -301,6 +301,37 @@ functions:
       - http:
           path: /vgws/passcode/check
           method: get
+  # COUNT UP
+  vgws_countup:
+    handler: src/lambda/vgws/clearcount/count_up/handler.main
+    package:
+      include:
+        - src/lambda/vgws/clearcount/count_up/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+      NAZOWA_URL: ${env:NAZOWA_URL}
+      NAZPWA_ID: ${env:NAZPWA_ID}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/count/up
+          method: get
+  vgws_countup_fetch:
+    handler: src/lambda/vgws/clearcount/fetch_count/handler.main
+    package:
+      include:
+        - src/lambda/vgws/clearcount/fetch_count/handler.py
+    environment:
+      TABLE: ${self:custom.table}
+    layers:
+      - { Ref: UtilsLayerLambdaLayer }
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: /vgws/count/fetch
+          method: get
 resources:
   Resources:
     VRCVSTable:

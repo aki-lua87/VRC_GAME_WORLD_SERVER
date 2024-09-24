@@ -64,3 +64,11 @@ def postWebhook(stringdata):
         "content": stringdata
     }
     requests.post(url, main_content)
+
+
+def postWebhook2(stringdata, url):
+    print('url:', url + ' ' + stringdata)
+    main_content = {
+        "content": stringdata
+    }
+    requests.post(url, main_content)
