@@ -53,7 +53,11 @@ def regist(pub_passcode: str, priv_passcode: str, world_id: str):
 
 def create_passcode():
     # 4桁のランダムな数字を作成
-    passcode = random.randint(1000, 9999)
+    # passcode = random.randint(1000, 9999)
+    # 1~8のランダムな数字を4つ合成して4桁の数字を作成
+    passcode = ''
+    for i in range(4):
+        passcode += str(random.randint(1, 8))
     return passcode
 
 
@@ -72,5 +76,5 @@ def get_passcode(world_id: str, pub_passcode: str):
 
 def ttlCreate():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(hours=1)
+    expiration_date = start + datetime.timedelta(hours=12)  # 12時間後に期限切れ
     return round(expiration_date.timestamp())

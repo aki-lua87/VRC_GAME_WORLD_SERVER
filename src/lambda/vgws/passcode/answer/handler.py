@@ -26,17 +26,23 @@ def main(event, context):
         }
     # ステータスを確認しcreatedでなければエラー
     status = item.get('status')
-    if status != 'prosessing':
+    if status == 'prosessing':
         return {
             'statusCode': 200,
-            'body': 'BadRequest'
+            'body': 'Congratulations'
         }
-    # passcodeのチェック
-    # if pri_passcode != item.get('priv_passcode'):
-    #     return {
-    #         'statusCode': 200,
-    #         'body': 'BadAnswer'
-    #     }
+    elif status == 'complete':
+        return {
+            'statusCode': 200,
+            'body': "AlreadyComplete"
+        }
+    elif status == 'created':
+        pass
+    else:
+        return {
+            'statusCode': 200,
+            'body': "BadStatus"
+        }
     # ステータスを更新する
     update_status(world_id, pub_passcode)
     # 成功を通知

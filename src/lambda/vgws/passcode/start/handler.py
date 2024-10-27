@@ -26,10 +26,12 @@ def main(event, context):
     # ステータスを確認しcreatedでなければエラー
     status = item.get('status')
     if status != 'created':
-        return {
-            'statusCode': 200,
-            'body': 'BadRequest'
-        }
+        # prosessingの場合は許容
+        if status != 'prosessing':
+            return {
+                'statusCode': 200,
+                'body': status
+            }
     # ステータスを更新する
     update_status(world_id, pub_passcode)
     # プライベートパスコードを返す
