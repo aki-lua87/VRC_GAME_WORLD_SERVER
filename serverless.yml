@@ -32,8 +32,8 @@ provider:
   timeout: 7
   logRetentionInDays: 14
   tracing:
-    apiGateway: false
-    lambda: false
+    apiGateway: true
+    lambda: true
 
 package:
   individually: true

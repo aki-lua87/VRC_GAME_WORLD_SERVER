@@ -26,6 +26,8 @@ def main(event, context):
         if item is not None:
             pub_passcode = create_passcode()
         else:
+            print('i:', i)
+            print('pub_passcode:', pub_passcode)
             break
     priv_passcode = create_passcode()  # こっちは重複していい
     regist(pub_passcode, priv_passcode, world_id)
@@ -76,5 +78,5 @@ def get_passcode(world_id: str, pub_passcode: str):
 
 def ttlCreate():
     start = datetime.datetime.now()
-    expiration_date = start + datetime.timedelta(hours=12)  # 12時間後に期限切れ
+    expiration_date = start + datetime.timedelta(hours=11)  # 12時間後に期限切れ
     return round(expiration_date.timestamp())

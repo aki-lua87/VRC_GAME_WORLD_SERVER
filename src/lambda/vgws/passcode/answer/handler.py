@@ -27,6 +27,8 @@ def main(event, context):
     # ステータスを確認しcreatedでなければエラー
     status = item.get('status')
     if status == 'prosessing':
+        # ステータスを更新する
+        update_status(world_id, pub_passcode)
         return {
             'statusCode': 200,
             'body': 'Congratulations'
@@ -37,19 +39,19 @@ def main(event, context):
             'body': "AlreadyComplete"
         }
     elif status == 'created':
-        pass
+        # ステータスを更新する
+        # 一足飛びパターン
+        update_status(world_id, pub_passcode)
+        # 成功を通知
+        return {
+            'statusCode': 200,
+            'body': 'Congratulations'
+        }
     else:
         return {
             'statusCode': 200,
             'body': "BadStatus"
         }
-    # ステータスを更新する
-    update_status(world_id, pub_passcode)
-    # 成功を通知
-    return {
-        'statusCode': 200,
-        'body': 'Congratulations'
-    }
 
 
 def get_priv_passcode(world_id: str, pub_passcode: str):
